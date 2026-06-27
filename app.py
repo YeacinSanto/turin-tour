@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 
 from dao.user_dao import get_user_by_id
+from routes.auth_route import auth_bp
 
 load_dotenv()
 
@@ -26,6 +27,8 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return get_user_by_id(user_id)
+    
+    app.register_blueprint(auth_bp)
     
     return app
 

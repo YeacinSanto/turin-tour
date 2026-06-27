@@ -11,3 +11,14 @@ def get_user_by_id(user_id):
         return None
     langs = row['languages'].split(',') if row['languages'] else []
     return User(row['id'], row['email'], row['first_name'], row['last_name'], row['role'], langs)
+
+def verify_user(email,password):
+    conn = get_db_connection()
+    row = conn.execute("SELECT * FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
+    conn.close()
+    
+    if row and check_password_hash(row['password_hash'],password):
+        langs = row['languages'].split(',') if row['languages'] else []
+        
+        return User(row['id'],row['email'],row['first_name'], row['last_name'], row['role'], langs)
+    return None
