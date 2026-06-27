@@ -22,3 +22,22 @@ def verify_user(email,password):
         
         return User(row['id'],row['email'],row['first_name'], row['last_name'], row['role'], langs)
     return None
+
+def register_new_user(email, password, first_name, last_name, role, languages_list=None):
+    conn = get_db_connection()
+    pwd_hash = generate_password_hash(password, method='pbkdf2')
+    langs_str = ",".join(languages_list) if languages_list else None
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO users (email, password_hash, first_name, last_name, role, languages) VALUES (?, ?, ?, ?, ?, ?)",
+            (email.strip().lower(), pwd_hash, first_name.strip(), last_name.strip(), role, langs_str)
+        )
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        # Email collision handling trap
+        return False
+    finally:
+        conn.close()

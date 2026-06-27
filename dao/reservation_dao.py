@@ -49,3 +49,18 @@ def get_guide_tour_metrics(tour_id):
         
     conn.close()
     return metrics
+
+
+def submit_tour_attendance_report(tour_id, date_string, head_count, image_filename):
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            "INSERT INTO tour_reports (tour_id, tour_date, actual_count, report_image) VALUES (?, ?, ?, ?)",
+            (tour_id, date_string, int(head_count), image_filename)
+        )
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+    finally:
+        conn.close()
