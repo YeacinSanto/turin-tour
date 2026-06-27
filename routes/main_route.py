@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 from dao.tours_dao import get_filtered_tours, get_tour_complete_details
 
-main_bp = Blueprint('main', __name__)
+main_bp = Blueprint('main_route', __name__)
 
 @main_bp.route('/')
 def index():

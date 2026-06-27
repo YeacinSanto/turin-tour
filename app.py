@@ -28,7 +28,15 @@ def create_app():
     def load_user(user_id):
         return get_user_by_id(user_id)
     
+    from routes.auth_route import auth_bp
+    from routes.main_route import main_bp
+    from routes.guides_route import guides_bp
+    from routes.participants_route import participants_bp
+    
     app.register_blueprint(auth_bp)
+    app.register_blueprint(main_bp)
+    app.register_blueprint(guides_bp, url_prefix='/guide')
+    app.register_blueprint(participants_bp, url_prefix='/participant')
     
     return app
 

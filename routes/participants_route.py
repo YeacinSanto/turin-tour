@@ -2,9 +2,10 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from datetime import datetime
 from dao.tours_dao import get_tour_complete_details
-from dao.reservations_dao import get_booked_seats_count, check_participant_overlap, create_reservation, cancel_reservation, get_participant_agenda
 
-participants_bp = Blueprint('participants', __name__)
+from dao.reservation_dao import get_participant_agenda, get_booked_seats_count, check_participant_overlap, create_reservation, cancel_reservation
+
+participants_bp = Blueprint('participants_route', __name__)
 
 @participants_bp.route('/dashboard')
 @login_required
@@ -25,7 +26,7 @@ def book_tour(tour_id):
     
     if not target_date:
         flash("Please select a valid date for reservation workflows.", "warning")
-        return redirect(url_for('main.tour_detail', tour_id=tour_id))
+        return redirect(url_for('main_route.tour_detail', tour_id=tour_id))
 
     # Evaluate day validation constraint rules matching actual weekly setups
     parsed_date = datetime.strptime(target_date, "%Y-%m-%d")
@@ -34,7 +35,7 @@ def book_tour(tour_id):
     valid_days = [s['day_of_week'] for s in tour['schedules']]
     if day_of_week not in valid_days:
         flash(f"Operational mismatch: This tour does not operate on a {day_of_week}.", "danger")
-        return redirect(url_for('main.tour_detail', tour_id=tour_id))
+        return redirect(url_for('main_route.tour_detail', tour_id=tour_id))
 
     # Assemble extra passengers logic arrays safely
     guest_firsts = request.form.getlist('guest_first_name[]')
@@ -48,19 +49,19 @@ def book_tour(tour_id):
     party_size = 1 + len(guests)
     if party_size > 4:
         flash("Constraint violation: Individual ticketing profiles handle up to 4 passengers maximum.", "danger")
-        return redirect(url_for('main.tour_detail', tour_id=tour_id))
+        return redirect(url_for('main_route.tour_detail', tour_id=tour_id))
 
     # Check capacity constraints
     already_booked = get_booked_seats_count(tour_id, target_date)
     if already_booked + party_size > tour['max_participants']:
         available = tour['max_participants'] - already_booked
         flash(f"Capacity Overflow error. Only {available} slots remain open for booking on this date.", "danger")
-        return redirect(url_for('main.tour_detail', tour_id=tour_id))
+        return redirect(url_for('main_route.tour_detail', tour_id=tour_id))
 
     # Check schedule overlap conflicts
     if check_participant_overlap(current_user.id, target_date, tour_id):
         flash("Schedule intersection crash: You have an active tour reservation overlapping this timeframe.", "danger")
-        return redirect(url_for('main.tour_detail', tour_id=tour_id))
+        return redirect(url_for('main_route.tour_detail', tour_id=tour_id))
 
     # Execute transactional commit paths
     success = create_reservation(current_user.id, tour_id, target_date, guests)
@@ -69,7 +70,7 @@ def book_tour(tour_id):
     else:
         flash("System booking allocation processing fault.", "danger")
         
-    return redirect(url_for('participants.dashboard'))
+    return redirect(url_for('participants_route.dashboard'))
 
 @participants_bp.route('/cancel/<int:res_id>', methods=['POST'])
 @login_required
@@ -82,14 +83,14 @@ def cancel(res_id):
         flash(msg, "success")
     else:
         flash(msg, "danger")
-    return redirect(url_for('participants.dashboard'))
+    return redirect(url_for('participants_route.dashboard'))
 
 @participants_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     if current_user.role != 'participant':
         flash('Unauthorized access layer.', 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main_route.index'))
 
     if request.method == 'POST':
         current_user.first_name = request.form.get('first_name')
@@ -100,7 +101,8 @@ def profile():
             current_user.set_password(password)
             
         # db.session.commit()
+        
         flash('Tourist credentials modified successfully.', 'success')
-        return redirect(url_for('participants.dashboard'))
+        return redirect(url_for('participants_route.dashboard'))
 
-    return render_template('participants/profile.html')
+    return render_template('profile.html')
