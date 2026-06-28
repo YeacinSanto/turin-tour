@@ -2,62 +2,61 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-dark mb-0">Guide Administration Console</h2>
-        <p class="text-muted mb-0">Monitor schedules, verify attendance manifest states, and publish itineraries.</p>
+        <h3 class="fw-bold mb-0">Guide Administration Panel</h3>
+        <p class="text-muted mb-0">Monitor historical manifests, verify headcounts, and publish itineraries.</p>
     </div>
-    <a href="{{ url_for('guides_route.create_new_tour') }}" class="btn btn-success fw-bold px-4 shadow-sm">+ Launch New Tour</a>
+    <a href="{{ url_for('guides_route.create_new_tour') }}" class="btn btn-dark fw-semibold px-4">+ Launch New Tour</a>
 </div>
 
 <div class="row">
     <div class="col-12">
         {% if tours %}
             {% for tour in tours %}
-                <div class="card border-0 shadow-sm mb-4 p-4 bg-white rounded">
+                <div class="card border shadow-sm mb-4 p-4 bg-white rounded">
                     <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
                         <div>
-                            <span class="badge bg-success mb-2">{{ tour.language }}</span>
+                            <span class="badge bg-light text-dark border mb-1">{{ tour.language }}</span>
                             <h4 class="fw-bold text-dark mb-1">{{ tour.title }}</h4>
-                            <p class="text-secondary small mb-0">⏱ {{ tour.duration }} Minutes &bull; 📍 Meeting Point: {{ tour.meeting_point }}</p>
+                            <p class="text-muted small mb-0">⏱ {{ tour.duration }} Mins &bull; 📍 Meet: {{ tour.meeting_point }}</p>
                         </div>
-                        <a href="{{ url_for('guides_route.edit_tour', tour_id=tour.id) }}" class="btn btn-outline-secondary btn-sm fw-bold">Modify Route Layout</a>
+                        <a href="{{ url_for('guides_route.edit_tour', tour_id=tour.id) }}" class="btn btn-outline-secondary btn-sm">Modify Layout</a>
                     </div>
 
-                    <h5 class="h6 fw-bold font-monospace text-secondary mb-3">&gt; ACTIVE RESERVATION DISPATCH MANIFESTS</h5>
+                    <h6 class="fw-bold text-secondary mb-3 text-uppercase tracking-wider small">Active Manifest Schedules</h6>
                     
                     {% if tour.metrics %}
                         <div class="row row-cols-1 row-cols-md-2 g-3">
                             {% for run in tour.metrics %}
                                 <div class="col">
-                                    <div class="card bg-light border p-3 h-100 position-relative">
+                                    <div class="card bg-light border-0 border-start border-3 border-secondary p-3 h-100">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="fw-bold text-dark">{{ run.date }}</span>
-                                            <span class="badge bg-dark">Expected Pax: {{ run.total_expected }}</span>
+                                            <span class="fw-bold text-dark small">{{ run.date }}</span>
+                                            <span class="badge bg-dark">Pax Expected: {{ run.total_expected }}</span>
                                         </div>
                                         
                                         <div class="mb-3">
-                                            <p class="small text-muted fw-bold mb-1">Registered Groups Summary:</p>
-                                            <ul class="list-unstyled small text-secondary ps-1 mb-0">
+                                            <ul class="list-unstyled small text-secondary ps-0 mb-0">
                                                 {% for b in run.manifest %}
                                                     <li class="border-bottom py-1">
-                                                        👤 <strong>{{ b.lead_name }}</strong> ({{ b.count }} seats)<br>
+                                                        <strong>{{ b.lead_name }}</strong> ({{ b.count }} seats)<br>
                                                         {% if b.guests %}
-                                                            <span class="text-muted text-xs ms-3">Guests: {{ b.guests|join(', ') }}</span>
+                                                            <span class="text-muted text-xs ms-1">Names: {{ b.guests|join(', ') }}</span>
                                                         {% endif %}
                                                     </li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
 
-                                        <div class="mt-auto border-top pt-2">
+                                        <div class="mt-auto pt-2 border-top">
                                             {% if run.is_reported %}
-                                                <div class="alert alert-success py-1 px-2 small mb-0 d-flex justify-content-between align-items-center">
-                                                    <span>✅ Attendance Confirmed</span>
-                                                    <strong>Headcount: {{ run.report_data.actual_count }}</strong>
+                                                <div class="text-success small fw-bold d-flex justify-content-between align-items-center">
+                                                    <span>✅ Confirmed Headcount:</span>
+                                                    <span>{{ run.report_data.actual_count }}</span>
                                                 </div>
                                             {% elif run.eligible_for_report %}
-                                                <a href="{{ url_for('guides_route.report_tour', tour_id=tour.id, date_str=run.date) }}" class="btn btn-danger btn-sm w-100 fw-bold">Submit Audit Report</a>
+                                                <a href="{{ url_for('guides_route.report_tour', tour_id=tour.id, date_str=run.date) }}" class="btn btn-danger btn-sm w-100 fw-semibold">Submit Report</a>
                                             {% else %}
-                                                <span class="text-muted small italic">Awaiting completion on scheduled execution date.</span>
+                                                <span class="text-muted small bg-white border d-block p-1 text-center rounded">Awaiting scheduled execution date</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -65,15 +64,15 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted small italic mb-0">No historical reservations logged on timeline tracks yet.</p>
+                        <p class="text-muted small mb-0">No reservations registered to this route yet.</p>
                     {% endif %}
                 </div>
             {% endfor %}
         {% else %}
-            <div class="alert alert-secondary bg-white text-center py-5 shadow-sm border-dashed">
-                <h5>No Registered Routes Managed Yet</h5>
-                <p class="text-muted small">Get started by building your first walking route schema context boundary mapping entry!</p>
-                <a href="{{ url_for('guides_route.create_new_tour') }}" class="btn btn-success btn-sm fw-bold px-3 mt-2">Create Form Pattern</a>
+            <div class="card border border-dashed bg-white text-center py-5 shadow-sm">
+                <h5 class="text-muted">No Route Files Active</h5>
+                <p class="text-muted small">Begin operational mapping layouts by creating your first entry pattern.</p>
+                <div class="d-inline-block"><a href="{{ url_for('guides_route.create_new_tour') }}" class="btn btn-dark btn-sm fw-semibold px-4">Create Layout Form</a></div>
             </div>
         {% endif %}
     </div>

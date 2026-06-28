@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-4 mb-4 bg-white rounded shadow-sm border-start border-secondary border-4">
+    <h2 class="fw-bold text-dark">Administrator Settings</h2>
+    <p class="text-muted">Modify secure account authentication parameters.</p>
+</div>
+
+<form method="POST" class="bg-white p-4 shadow-sm rounded">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">First Name</label>
+            <input type="text" name="first_name" class="form-control" value="{{ current_user.first_name }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Last Name</label>
+            <input type="text" name="last_name" class="form-control" value="{{ current_user.last_name }}" required>
+        </div>
+    </div>
+    
+    <hr class="my-4">
+    <h5 class="fw-bold mb-3">Security Update</h5>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">New Password</label>
+            <input type="password" name="new_password" class="form-control" placeholder="Leave blank to keep current">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Confirm Password</label>
+            <input type="password" name="confirm_password" class="form-control">
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-dark fw-bold px-4">Save Configuration</button>
+</form>
+{% endblock %}

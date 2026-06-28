@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-4 mb-4 bg-white rounded shadow-sm border-start border-primary border-4">
+    <h2 class="fw-bold text-dark mb-1">System Administration Console</h2>
+    <p class="text-muted mb-0">Monitor infrastructure health, manage guide deployments, and review historical tour telemetry.</p>
+</div>
+
+<!-- Key Performance Indicators -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0 bg-primary text-white">
+            <h6 class="text-uppercase fw-bold opacity-75">Active Tours</h6>
+            <h3 class="fw-bold">{{ stats.total_tours }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0 bg-success text-white">
+            <h6 class="text-uppercase fw-bold opacity-75">Total Reservations</h6>
+            <h3 class="fw-bold">{{ stats.total_reservations }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0 bg-warning text-dark">
+            <h6 class="text-uppercase fw-bold opacity-75">Pending Reports</h6>
+            <h3 class="fw-bold">{{ stats.pending_reports }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Registry Management -->
+<h4 class="mb-3 font-monospace fw-bold text-secondary">&gt; Master Operations Registry</h4>
+<div class="card border-0 shadow-sm bg-white rounded">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th class="ps-3">Tour ID</th>
+                    <th>Guide Owner</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th class="text-center">Administration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tour in all_tours %}
+                    <tr>
+                        <td class="ps-3 font-monospace text-primary">#{{ tour.id }}</td>
+                        <td>{{ tour.guide_name }}</td>
+                        <td class="fw-bold">{{ tour.title }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if tour.is_active else 'secondary' }}">
+                                {{ 'Active' if tour.is_active else 'Archived' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('admin_route.edit_tour', tour_id=tour.id) }}" class="btn btn-sm btn-outline-primary fw-bold">Edit</a>
+                            <form action="{{ url_for('admin_route.delete_tour', tour_id=tour.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Initiate total deletion of tour metadata?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">No tours found in the central registry.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h4 class="mt-5 mb-3 font-monospace fw-bold text-secondary">&gt; Global Reservation Manifest</h4>
+<div class="card border-0 shadow-sm bg-white rounded">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Date</th>
+                    <th>Participant</th>
+                    <th>Tour Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in reservations %}
+                <tr>
+                    <td class="ps-3 fw-bold text-primary">{{ res.tour_date }}</td>
+                    <td>{{ res.participant_name }}</td>
+                    <td>{{ res.tour_title }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-center py-3 text-muted">No reservations currently registered.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Reports Section -->
+<h4 class="mt-5 mb-3 font-monospace fw-bold text-secondary">&gt; Telemetry Reports Review</h4>
+<div class="card border-0 shadow-sm p-3">
+    {% if reports %}
+        <ul class="list-group list-group-flush">
+            {% for report in reports %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fw-bold d-block">{{ report.tour_title }}</span>
+                        <small class="text-muted">{{ report.tour_date }} | Attendees: {{ report.actual_count }}</small>
+                    </div>
+                    <a href="{{ url_for('admin_route.view_report', report_id=report.id) }}" class="btn btn-sm btn-dark">View Evidence</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-center text-muted italic p-3">No pending tour telemetry reports found.</p>
+    {% endif %}
+</div>
+{% endblock %}

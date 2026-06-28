@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border shadow-sm p-4 bg-white rounded">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div>
+                    <h3 class="fw-bold mb-0">Tour Verification Report</h3>
+                    <p class="text-muted small mb-0">Database Record ID: #{{ report.id }}</p>
+                </div>
+                <span class="badge bg-dark px-3 py-2">Admin View</span>
+            </div>
+
+            <!-- Report Details Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <label class="small text-muted d-block">Tour Reference ID</label>
+                    <span class="fw-semibold text-dark">#{{ report.tour_id }}</span>
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted d-block">Execution Date</label>
+                    <span class="fw-semibold text-dark">{{ report.tour_date }}</span>
+                </div>
+                <div class="col-12">
+                    <div class="p-3 bg-light rounded border border-light-subtle">
+                        <label class="small text-muted d-block mb-1">Verified Attendance Headcount</label>
+                        <span class="fs-4 fw-bold text-dark">{{ report.actual_count }} Attendees</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification Image Asset -->
+            <div class="mb-4">
+                <label class="form-label small fw-semibold text-secondary">Attendance Confirmation Snapshot</label>
+                <div class="border rounded bg-light p-2 text-center overflow-hidden">
+                    {% if report.report_image %}
+                        <img src="{{ url_for('static', filename='uploads/reports/' ~ report.report_image) }}" 
+                             alt="Attendance Verification Asset" 
+                             class="img-fluid rounded shadow-sm" 
+                             style="max-height: 350px; object-fit: contain; width: 100%;">
+                    {% else %}
+                        <div class="py-5 text-muted small">No verified visual confirmation image attached to this record.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Navigation Actions -->
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm px-4">Back</a>
+                <button onclick="window.print()" class="btn btn-dark btn-sm px-4 fw-semibold">Print Archival Copy</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from werkzeug.security import generate_password_hash
 
 def build_empty_database():
     db_file = "database.db"
@@ -19,6 +20,13 @@ def build_empty_database():
         # print("🌱 Seeding relational structural testing accounts...")
         # with open("seed.sql", "r", encoding="utf-8") as seed_f:
         #     cursor.executescript(seed_f.read())
+
+        admin_password = generate_password_hash("admin123",method='pbkdf2')
+        cursor.execute(
+            "INSERT INTO users (email,first_name,last_name, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+            ('admin@gmail.com', 'Admin', 'xxx', admin_password, 'admin')
+        )
+
 
         connection.commit()
         print("🚀 Database builds evaluated successfully. operational deployment clean.")
