@@ -105,4 +105,4 @@ def profile():
         flash('Tourist credentials modified successfully.', 'success')
         return redirect(url_for('participants_route.dashboard'))
 
-    return render_template('profile.html')
+    return render_template('participant_profile.html')

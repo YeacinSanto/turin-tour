@@ -1,3 +1,4 @@
+import sqlite3
 from dao.db import get_db_connection
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash

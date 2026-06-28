@@ -13,7 +13,7 @@ guides_bp = Blueprint('guides_route',__name__)
 def dashboard():
     if not current_user.is_guide:
         return "Access Forbidden", 403
-    tours = get_tours_by_guide(current_user)
+    tours = get_tours_by_guide(current_user.id)
     
     for tour in tours:
         tour['metrics'] = get_guide_tour_metrics(tour['id'])
@@ -238,5 +238,5 @@ def profile():
         return redirect(url_for('guides_route.dashboard'))
 
     guide_languages = [lang for lang in current_user.languages] if hasattr(current_user, 'languages') else []
-    return render_template('profile.html', guide_languages=guide_languages)
+    return render_template('guide_profile.html', guide_languages=guide_languages)
     
