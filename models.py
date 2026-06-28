@@ -17,3 +17,7 @@ class User(UserMixin):
     @property
     def is_participant(self):
         return self.role == 'participant'
+    
+    @property
+    def is_admin(self):
+        return self.role == 'admin'

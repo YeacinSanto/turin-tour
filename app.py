@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 
 from dao.user_dao import get_user_by_id
-from routes.auth_route import auth_bp
 
 load_dotenv()
 
@@ -32,9 +31,11 @@ def create_app():
     from routes.main_route import main_bp
     from routes.guides_route import guides_bp
     from routes.participants_route import participants_bp
+    from routes.admin_route import admin_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(guides_bp, url_prefix='/guide')
     app.register_blueprint(participants_bp, url_prefix='/participant')
     

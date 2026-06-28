@@ -5,10 +5,29 @@ def get_admin_dashboard_stats():
     stats = {
         'total_tours': conn.execute("SELECT COUNT(*) FROM tours").fetchone()[0],
         'total_reservations': conn.execute("SELECT COUNT(*) FROM reservations").fetchone()[0],
-        'pending_reports': conn.execute("SELECT COUNT(*) FROM tour_reports WHERE report_image IS NULL").fetchone()[0]
+        'pending_reports': conn.execute("SELECT COUNT(*) FROM tour_reports WHERE report_image IS NULL").fetchone()[0],
+        'total_guides': conn.execute("SELECT COUNT(*) FROM users WHERE role = 'guide'").fetchone()[0],
+        'total_participants': conn.execute("SELECT COUNT(*) FROM users WHERE role = 'participant'").fetchone()[0]
     }
     conn.close()
     return stats
+
+def get_all_reservations_details(language=None):
+    conn = get_db_connection()
+    query = """
+        SELECT r.tour_date, u.first_name || ' ' || u.last_name as participant_name, t.title as tour_title ,t.language
+        FROM reservations r
+        JOIN users u ON r.participant_id = u.id
+        JOIN tours t ON r.tour_id = t.id
+    """
+    params = ()
+    if language:
+        query += " WHERE t.language = ?"
+        params = (language,)
+    
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
 
 def get_all_tours_summary():
     conn = get_db_connection()
@@ -20,23 +39,6 @@ def get_all_tours_summary():
     conn.close()
     return [dict(t) for t in tours]
 
-def get_all_reservations_details():
-    conn = get_db_connection()
-    # Join reservations with users (participants) and tours (titles)
-    query = """
-        SELECT 
-            r.id, 
-            r.tour_date, 
-            u.first_name || ' ' || u.last_name as participant_name,
-            t.title as tour_title
-        FROM reservations r
-        JOIN users u ON r.participant_id = u.id
-        JOIN tours t ON r.tour_id = t.id
-        ORDER BY r.tour_date DESC
-    """
-    reservations = conn.execute(query).fetchall()
-    conn.close()
-    return [dict(r) for r in reservations]
 
 def delete_tour_byId(tour_id):
     conn = get_db_connection()
@@ -55,6 +57,20 @@ def update_tour_by_admin(tour_id, title, meeting_point, duration, language, max_
     conn.commit()
     conn.close()
     
+
+def get_host_language_by_tour(tour_id):
+    conn = get_db_connection()
+    # Assuming your tours table has a 'guide_id' (or 'host_id') 
+    # that links to the 'users' table
+    row = conn.execute("""
+        SELECT u.languages 
+        FROM users u
+        JOIN tours t ON u.id = t.guide_id 
+        WHERE t.id = ?
+    """, (tour_id,)).fetchone()
+    conn.close()
+    return row['languages'] if row else None
+
 def get_report(tour_id):
     conn = get_db_connection()
     conn.execute("""
@@ -83,3 +99,20 @@ def update_admin_password(user_id, hashed_password):
     """, (hashed_password, user_id))
     conn.commit()
     conn.close()
+
+def get_all_guides():
+    conn = get_db_connection()
+    guides = conn.execute("""
+        SELECT id, first_name, last_name, email, languages
+        FROM users
+        WHERE role = 'guide'
+    """).fetchall()
+    conn.close()
+    return [dict(guide) for guide in guides]
+
+def get_all_participants():
+    conn = get_db_connection()
+    # Fetching all users with role 'participant'
+    participants = conn.execute("SELECT id, first_name, last_name, email FROM users WHERE role = 'participant'").fetchall()
+    conn.close()
+    return [dict(row) for row in participants]

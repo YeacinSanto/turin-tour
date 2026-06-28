@@ -2,33 +2,29 @@
 {% block content %}
 <div class="p-4 mb-4 bg-white rounded shadow-sm border-start border-primary border-4">
     <h2 class="fw-bold text-dark mb-1">System Administration Console</h2>
-    <p class="text-muted mb-0">Monitor infrastructure health, manage guide deployments, and review historical tour telemetry.</p>
+    <p class="text-muted mb-2">Monitor infrastructure health, manage guide deployments, and review historical tour telemetry.</p>
+    
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('admin_route.view_all_guides') }}" class="btn btn-primary btn-sm px-3">
+            <i class="bi bi-people-fill"></i> Manage Guides
+        </a>
+        <a href="{{ url_for('admin_route.view_all_participants') }}" class="btn btn-secondary btn-sm px-3">
+            <i class="bi bi-person-badge-fill"></i> Manage Participants
+        </a>
+    </div>
 </div>
 
 <!-- Key Performance Indicators -->
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm border-0 bg-primary text-white">
-            <h6 class="text-uppercase fw-bold opacity-75">Active Tours</h6>
-            <h3 class="fw-bold">{{ stats.total_tours }}</h3>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm border-0 bg-success text-white">
-            <h6 class="text-uppercase fw-bold opacity-75">Total Reservations</h6>
-            <h3 class="fw-bold">{{ stats.total_reservations }}</h3>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm border-0 bg-warning text-dark">
-            <h6 class="text-uppercase fw-bold opacity-75">Pending Reports</h6>
-            <h3 class="fw-bold">{{ stats.pending_reports }}</h3>
-        </div>
-    </div>
+    <div class="col-md-2"><div class="card p-3 shadow-sm border-0 bg-success text-white"><h6>Reservations</h6><h3>{{ stats.total_reservations }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 shadow-sm border-0 bg-primary text-white"><h6>Tours</h6><h3>{{ stats.total_tours }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 shadow-sm border-0 bg-warning text-dark"><h6>Pending</h6><h3>{{ stats.pending_reports }}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3 shadow-sm border-0 bg-info text-white"><h6>Total Guides</h6><h3>{{ stats.total_guides }}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3 shadow-sm border-0 bg-secondary text-white"><h6>Total Participants</h6><h3>{{ stats.total_participants }}</h3></div></div>
 </div>
 
 <!-- Admin Registry Management -->
-<h4 class="mb-3 font-monospace fw-bold text-secondary">&gt; Master Operations Registry</h4>
+<h4 class="mb-3 font-monospace fw-bold text-secondary"> Master Operations Registry</h4>
 <div class="card border-0 shadow-sm bg-white rounded">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -69,7 +65,17 @@
     </div>
 </div>
 
-<h4 class="mt-5 mb-3 font-monospace fw-bold text-secondary">&gt; Global Reservation Manifest</h4>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mt-5 mb-3 font-monospace fw-bold text-secondary"> Global Reservation Manifest</h4>
+    <form method="GET" action="{{ url_for('admin_route.dashboard') }}">
+        <select name="lang" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">All Languages</option>
+            {% for lang in ['Italian', 'English', 'Spanish', 'Portuguese', 'German'] %}
+                <option value="{{ lang }}" {% if selected_lang == lang %}selected{% endif %}>{{ lang }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
 <div class="card border-0 shadow-sm bg-white rounded">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -78,6 +84,7 @@
                     <th class="ps-3">Date</th>
                     <th>Participant</th>
                     <th>Tour Title</th>
+                    <th>Langauge</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,6 +93,7 @@
                     <td class="ps-3 fw-bold text-primary">{{ res.tour_date }}</td>
                     <td>{{ res.participant_name }}</td>
                     <td>{{ res.tour_title }}</td>
+                    <td>{{ res.language }}</td>
                 </tr>
                 {% else %}
                 <tr>
@@ -98,7 +106,7 @@
 </div>
 
 <!-- Recent Reports Section -->
-<h4 class="mt-5 mb-3 font-monospace fw-bold text-secondary">&gt; Telemetry Reports Review</h4>
+<h4 class="mt-5 mb-3 font-monospace fw-bold text-secondary"> Telemetry Reports Review</h4>
 <div class="card border-0 shadow-sm p-3">
     {% if reports %}
         <ul class="list-group list-group-flush">

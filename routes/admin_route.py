@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from functools import wraps
 
-from dao.admin_dao import get_admin_dashboard_stats,get_all_tours_summary,get_all_reservations_details,delete_tour_byId,update_tour_by_admin,update_admin_profile,update_admin_password, get_report
+from dao.admin_dao import get_admin_dashboard_stats, get_all_participants,get_all_tours_summary,get_all_reservations_details,delete_tour_byId, get_host_language_by_tour,update_tour_by_admin,update_admin_profile,update_admin_password, get_report,get_all_guides
 
 
 from dao.tours_dao import get_tour_complete_details
@@ -26,17 +26,34 @@ def admin_required(f):
 @admin_bp.route('/dashboard')
 @admin_required
 def dashboard():
+    # Get language filter from URL query string ?lang=Italian
+    selected_lang = request.args.get('lang')
+    
     stats = get_admin_dashboard_stats()
     all_tours = get_all_tours_summary()
-    reservations = get_all_reservations_details()
+    reservations = get_all_reservations_details(language=selected_lang)
 
     return render_template(
-        'admin/dashboard.html',
+        'admin_dashboard.html',
         stats=stats,
         all_tours=all_tours,
-        reservations=reservations
+        reservations=reservations,
+        selected_lang=selected_lang
     )
 
+@admin_bp.route('/guides') 
+@admin_required
+def view_all_guides():
+    guides = get_all_guides()
+    for g in guides:
+        g['languages'] = g['languages'].split(',') if g['languages'] else []
+    return render_template('view_all_guides.html', guides=guides)
+
+@admin_bp.route('/participants')
+@admin_required
+def view_all_participants():
+    participants = get_all_participants()
+    return render_template('view_all_participants.html', participants=participants)
 
 
 @admin_bp.route('/tour/delete/<int:tour_id>', methods=['POST'])
@@ -61,9 +78,10 @@ def edit_tour(tour_id):
             title = request.form.get('title')
             meeting_point = request.form.get('meeting_point')
             duration = int(request.form.get('duration'))
-            language = request.form.get('language')
             max_participants = int(request.form.get('max_participants'))
             description = request.form.get('description')
+            language = request.form.get('language')
+            update_tour_by_admin(tour_id, title, meeting_point, duration, language, max_participants, description)
 
             if not title or not meeting_point:
                 flash("Title and meeting point are required.", "danger")
@@ -86,8 +104,9 @@ def edit_tour(tour_id):
             flash("Invalid numeric input.", "danger")
             return redirect(url_for('admin_route.edit_tour', tour_id=tour_id))
 
-    tour = get_tour_complete_details(tour_id)
-    return render_template('admin/edit_tour.html', tour=tour)
+    tour = get_tour_complete_details(tour_id)  
+    host_language = get_host_language_by_tour(tour_id).split(',') if get_host_language_by_tour(tour_id) else [] # Debugging line
+    return render_template('tour_form.html', tour=tour,host_language=host_language)
 
 @admin_bp.route('/view-report/<int:report_id>', methods=["GET"])
 @admin_required
@@ -126,4 +145,4 @@ def profile():
         flash("Profile updated successfully.", "success")
         return redirect(url_for('admin_route.dashboard'))
 
-    return render_template('admin/profile.html')
+    return render_template('admin_profile.html', user=current_user)

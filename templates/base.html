@@ -28,6 +28,9 @@
                         {% if current_user.is_guide %}
                             <li class="nav-item"><a class="nav-link text-white fw-bold" href="{{ url_for('guides_route.dashboard') }}">Guide Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('guides_route.profile') }}">Settings</a></li>
+                        {% elif current_user.is_admin %}
+                            <li class="nav-item"><a class="nav-link text-white fw-bold" href="{{ url_for('admin_route.dashboard') }}">Admin Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('admin_route.profile') }}">Settings</a></li>
                         {% else %}
                             <li class="nav-item"><a class="nav-link text-white fw-bold" href="{{ url_for('participants_route.dashboard') }}">My Agenda</a></li>
                             <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('participants_route.profile') }}">Settings</a></li>

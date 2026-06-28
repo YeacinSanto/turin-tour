@@ -41,9 +41,15 @@
                 <div class="mb-4">
                     <label class="form-label fw-bold small">Operating Language</label>
                     <select name="language" required class="form-select" {% if locked %}disabled{% endif %}>
-                        {% for l in languages %}
-                            <option value="{{ l }}" {% if tour and tour.language == l %}selected{% endif %}>{{ l }}</option>
-                        {% endfor %}
+                        {% if languages %}
+                            {% for l in languages %}
+                                <option value="{{ l }}" {% if tour and tour.language == l %}selected{% endif %}>{{ l }}</option>
+                            {% endfor %}
+                        {% elif host_language %}
+                            {% for l in host_language %}
+                                <option value="{{ l }}" {% if tour and tour.language == l %}selected{% endif %}>{{ l }}</option>
+                            {% endfor %}
+                        {% endif %}
                     </select>
                 </div>
 
@@ -98,7 +104,11 @@
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end border-top pt-3">
-                    <a href="{{ url_for('guides_route.dashboard') }}" class="btn btn-outline-secondary px-4 fw-bold">Cancel</a>
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin_route.dashboard') }}" class="btn btn-outline-secondary px-4 fw-bold">Cancel</a>
+                    {% else %}
+                        <a href="{{ url_for('guides_route.dashboard') }}" class="btn btn-outline-secondary px-4 fw-bold">Cancel</a>
+                    {% endif %}
                     <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm">Save Complete Blueprint</button>
                 </div>
             </form>

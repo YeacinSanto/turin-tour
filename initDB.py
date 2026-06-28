@@ -17,9 +17,9 @@ def build_empty_database():
         with open("schema.sql", "r", encoding="utf-8") as schema_f:
             cursor.executescript(schema_f.read())
 
-        # print("🌱 Seeding relational structural testing accounts...")
-        # with open("seed.sql", "r", encoding="utf-8") as seed_f:
-        #     cursor.executescript(seed_f.read())
+        print("🌱 Seeding relational structural testing accounts...")
+        with open("seed.sql", "r", encoding="utf-8") as seed_f:
+            cursor.executescript(seed_f.read())
 
         admin_password = generate_password_hash("admin123",method='pbkdf2')
         cursor.execute(

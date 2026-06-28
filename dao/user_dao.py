@@ -18,10 +18,12 @@ def verify_user(email,password):
     row = conn.execute("SELECT * FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
     conn.close()
     
+    print(f"Verifying user with email: {email}, password: {password}, row found: {row}")  # Debugging line
     if row and check_password_hash(row['password_hash'],password):
+        print(f"User verified successfully: {row['email']}")  # Debugging line
         langs = row['languages'].split(',') if row['languages'] else []
         
-        return User(row['id'],row['email'],row['first_name'], row['last_name'], row['role'], langs)
+        return User(row['id'],row['email'],row['first_name'], row['last_name'], row['role'], langs)  # Debugging line
     return None
 
 def register_new_user(email, password, first_name, last_name, role, languages_list=None):

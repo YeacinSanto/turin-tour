@@ -9,6 +9,8 @@ def login():
     if request.method == "POST":
         email = request.form.get('email')
         password = request.form.get('password')
+
+        print(f"Login attempt with email: {email} and password: {password}")  # Debugging line
         
         user = verify_user(email,password)
         if user:
@@ -16,6 +18,8 @@ def login():
             flash(f'Welcome, {user.first_name}!', 'success')
             if user.is_guide:
                 return redirect(url_for('guides_route.dashboard'))
+            if user.is_admin:
+                return redirect(url_for('admin_route.dashboard'))
             return redirect(url_for('participants_route.dashboard'))
         flash("Invalid email or password credentials.", "danger")
     return render_template('login.html')    
